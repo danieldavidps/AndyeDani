@@ -74,6 +74,18 @@
   .qnum{min-width:34px;text-align:center;font-family:'Fraunces',serif;font-size:20px;font-weight:600}
   .del{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:18px;padding:4px;flex:none;opacity:.6}
   .del:active{opacity:1}
+  .edit{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;flex:none;opacity:.6}
+  .edit:active{opacity:1}
+  .card.editing{display:block;border-color:var(--accent)}
+  .editform{display:flex;flex-direction:column;gap:8px;width:100%}
+  .editform .edit-name{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:9px 11px;font-family:inherit;font-size:15px;color:var(--ink);outline:none}
+  .editform .edit-name:focus{border-color:var(--accent)}
+  .editform .edit-cat{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:9px 11px;font-family:inherit;font-size:14px;color:var(--ink);outline:none}
+  .editbtns{display:flex;gap:8px}
+  .ebtn{flex:1;border:none;border-radius:9px;padding:10px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.12s}
+  .ebtn:active{transform:scale(.97)}
+  .ebtn.save{background:var(--green);color:#fff}
+  .ebtn.cancel{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 
   .checkitem{cursor:pointer}
   .checkitem.done .name{text-decoration:line-through;color:var(--muted)}
@@ -89,6 +101,7 @@
   .price-row .lbl{font-size:12px;color:var(--muted)}
   .price-in{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:6px 10px;font-family:inherit;font-size:14px;color:var(--ink);outline:none;width:110px}
   .price-in:focus{border-color:var(--accent)}
+  .subtotal{font-weight:700;color:var(--green);font-size:14px;margin-left:4px}
   .lastpaid{font-size:11px;color:var(--accent);background:#f3e3d8;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
   .listcard{flex-wrap:wrap}
   .listcard .toprow2{display:flex;align-items:center;gap:12px;width:100%}
@@ -138,6 +151,7 @@
   .toprow3:last-child{border:none}
   .toprow3 .rank{width:24px;height:24px;border-radius:50%;background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);margin-right:10px;flex:none}
   .toprow3 .pname{flex:1;font-weight:500}
+  .toprow3 .pavg{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:1px}
   .toprow3 .pval{font-weight:700;color:var(--accent)}
 
   #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--paper);padding:13px 20px;border-radius:14px;font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:50;transition:transform .35s cubic-bezier(.2,.9,.3,1.3);max-width:90%;display:flex;align-items:center;gap:9px}
@@ -282,7 +296,11 @@ const HOUSEHOLD_ID = "minha-casa";
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
-const docRef = doc(db, "households", HOUSEHOLD_ID);
+// Cada seção vira um documento separado dentro da mesma despensa.
+// Assim, escritas em seções diferentes (ex: estoque x lista) não colidem
+// quando duas pessoas mexem ao mesmo tempo.
+const SECTIONS=["stock","list","cats","history"];
+const sectionRef=name=>doc(db,"households",HOUSEHOLD_ID,"data",name);
 
 const DEFAULT_CATS = [
   {name:"Alimentos", ic:"🍚"},
@@ -293,7 +311,7 @@ const DEFAULT_CATS = [
   {name:"Outros", ic:"📦"},
 ];
 let state={stock:[],list:[],cats:[],history:[]};
-let loaded=false, unsub=null, createMode=false;
+let loaded=false, createMode=false, editingId=null;
 
 const $=id=>document.getElementById(id);
 const BRL=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -355,31 +373,43 @@ onAuthStateChanged(auth,user=>{
   }else{
     $('app').classList.add('hidden');
     $('login').classList.remove('hidden');
-    if(unsub){unsub();unsub=null;}
+    stopSync();
     loaded=false;
   }
 });
 
-/* ---------- FIRESTORE SYNC ---------- */
+/* ---------- FIRESTORE SYNC (um documento por seção) ---------- */
+let unsubs=[];
 function startSync(){
-  if(unsub)unsub();
-  unsub=onSnapshot(docRef,snap=>{
-    if(snap.exists()){
-      const d=snap.data();
-      state={stock:d.stock||[],list:d.list||[],cats:d.cats||[],history:d.history||[]};
-    }else{
-      state={stock:[],list:[],cats:[],history:[]};
-    }
-    loaded=true;render();
-  },err=>{toast('Erro de conexão: '+err.code,true);});
+  stopSync();
+  loaded=false;
+  let ready={};
+  SECTIONS.forEach(sec=>{
+    const u=onSnapshot(sectionRef(sec),snap=>{
+      const arr = snap.exists() && Array.isArray(snap.data().items) ? snap.data().items : [];
+      state[sec]=arr;
+      ready[sec]=true;
+      // só renderiza depois que todas as seções chegaram pelo menos uma vez
+      if(!loaded && SECTIONS.every(s=>ready[s])){loaded=true;}
+      if(loaded)render();
+    },err=>{toast('Erro de conexão: '+err.code,true);});
+    unsubs.push(u);
+  });
 }
-let saveTimer=null;
-function save(){
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(async()=>{
-    try{await setDoc(docRef,{...state,updatedAt:Date.now()},{merge:true});}
-    catch(e){toast('Erro ao salvar',true);}
-  },120);
+function stopSync(){unsubs.forEach(u=>u());unsubs=[];}
+
+// salva APENAS a(s) seção(ões) que mudou(aram), com debounce por seção
+let saveTimers={};
+function save(...sections){
+  // se não especificar, salva todas (compatibilidade)
+  const secs = sections.length ? sections : SECTIONS;
+  secs.forEach(sec=>{
+    clearTimeout(saveTimers[sec]);
+    saveTimers[sec]=setTimeout(async()=>{
+      try{ await setDoc(sectionRef(sec),{items:state[sec]||[],updatedAt:Date.now()}); }
+      catch(e){ toast('Erro ao salvar',true); }
+    },150);
+  });
 }
 
 /* ---------- ESTOQUE ---------- */
@@ -388,15 +418,26 @@ function addStock(name,cat){
   name=name.trim();if(!name)return;
   if(state.stock.find(p=>p.name.toLowerCase()===name.toLowerCase())){toast('Produto já existe',true);return;}
   state.stock.unshift({id:uid(),name,qty:1,min:1,cat:cat||"Outros"});
-  save();render();
+  save('stock');render();
 }
 function changeQty(id,d){
   const p=state.stock.find(x=>x.id===id);if(!p)return;
   const b=p.qty;p.qty=Math.max(0,p.qty+d);
-  if(b>0&&p.qty===0){autoAddToList(p.name);toast('Sem estoque de '+p.name+' — foi pra lista 🛒',true);}
-  save();render();
+  let touched=['stock'];
+  if(b>0&&p.qty===0){autoAddToList(p.name);touched.push('list');toast('Sem estoque de '+p.name+' — foi pra lista 🛒',true);}
+  save(...touched);render();
 }
-function delStock(id){state.stock=state.stock.filter(x=>x.id!==id);save();render();}
+function delStock(id){state.stock=state.stock.filter(x=>x.id!==id);save('stock');render();}
+function editStock(id,newName,newCat){
+  const p=state.stock.find(x=>x.id===id);if(!p)return;
+  newName=(newName||'').trim();
+  if(!newName){toast('Nome não pode ficar vazio',true);return;}
+  const dup=state.stock.find(x=>x.id!==id&&x.name.toLowerCase()===newName.toLowerCase());
+  if(dup){toast('Já existe um produto com esse nome',true);return;}
+  p.name=newName;
+  p.cat=newCat||p.cat||"Outros";
+  save('stock');render();editingId=null;toast('Produto atualizado ✓');
+}
 function autoAddToList(name){
   if(!state.list.find(i=>i.name.toLowerCase()===name.toLowerCase()))
     state.list.unshift({id:uid(),name,done:false,auto:true,buyQty:1});
@@ -404,24 +445,24 @@ function autoAddToList(name){
 function addCategory(name){
   name=name.trim();if(!name)return;
   if(allCats().find(c=>c.name.toLowerCase()===name.toLowerCase())){toast('Categoria já existe',true);return;}
-  state.cats=[...(state.cats||[]),name];save();render();toast('Categoria criada ✓');
+  state.cats=[...(state.cats||[]),name];save('cats');render();toast('Categoria criada ✓');
 }
 
 /* ---------- LISTA ---------- */
 function addListManual(name){
   name=name.trim();if(!name)return;
   if(state.list.find(i=>i.name.toLowerCase()===name.toLowerCase())){toast('Já está na lista',true);return;}
-  state.list.unshift({id:uid(),name,done:false,auto:false,buyQty:1});save();render();
+  state.list.unshift({id:uid(),name,done:false,auto:false,buyQty:1});save('list');render();
 }
-function toggleDone(id){const i=state.list.find(x=>x.id===id);if(i){i.done=!i.done;save();render();}}
-function delList(id){state.list=state.list.filter(x=>x.id!==id);save();render();}
+function toggleDone(id){const i=state.list.find(x=>x.id===id);if(i){i.done=!i.done;save('list');render();}}
+function delList(id){state.list=state.list.filter(x=>x.id!==id);save('list');render();}
 function changeBuyQty(id,d){
   const i=state.list.find(x=>x.id===id);if(!i)return;
-  i.buyQty=Math.max(1,(i.buyQty||1)+d);save();render();
+  i.buyQty=Math.max(1,(i.buyQty||1)+d);save('list');render();
 }
 function setPrice(id,val){
   const i=state.list.find(x=>x.id===id);if(!i)return;
-  i.price=parsePrice(val);save();
+  i.price=parsePrice(val);save('list');
 }
 function stockQtyOf(name){
   const p=state.stock.find(x=>x.name.toLowerCase()===name.toLowerCase());
@@ -434,27 +475,29 @@ function lastPaidOf(name){
 function finalizarCompras(){
   const comprados=state.list.filter(i=>i.done);
   if(comprados.length===0){toast('Marque os itens comprados primeiro',true);return;}
-  const total=comprados.reduce((s,i)=>s+(i.price||0),0);
+  // i.price agora é o preço UNITÁRIO; o total do item = unitário × quantidade
+  const total=comprados.reduce((s,i)=>s+(i.price||0)*(i.buyQty||1),0);
   const entryItems=[];
   comprados.forEach(i=>{
-    const qtd=i.buyQty||1, preco=i.price||0;
+    const qtd=i.buyQty||1, unit=i.price||0, sub=unit*qtd;
     let p=state.stock.find(x=>x.name.toLowerCase()===i.name.toLowerCase());
     if(p){ p.qty+=qtd; }
     else { p={id:uid(),name:i.name,qty:qtd,min:1,cat:"Outros"}; state.stock.unshift(p); }
-    p.lastPaid=preco;
-    entryItems.push({name:i.name,qty:qtd,price:preco});
+    p.lastPaid=unit; // guarda o último preço UNITÁRIO pago
+    entryItems.push({name:i.name,qty:qtd,unit,total:sub});
   });
   state.history.unshift({
     id:uid(), date:Date.now(), total, items:entryItems
   });
   // remove os comprados da lista (zera), mantém os não comprados
   state.list=state.list.filter(i=>!i.done);
-  save();render();
+  // finalizar mexe nas três seções de uma vez
+  save('stock','list','history');render();
   toast('Compra finalizada • '+BRL(total)+' ✓');
 }
 function delHistory(id){
   if(!confirm('Remover esta compra do histórico? O estoque não muda.'))return;
-  state.history=state.history.filter(h=>h.id!==id);save();render();
+  state.history=state.history.filter(h=>h.id!==id);save('history');render();
 }
 
 /* ---------- RENDER ---------- */
@@ -499,6 +542,7 @@ function renderStock(){
   }).join('');
 }
 function cardStock(p){
+  if(editingId===p.id) return cardStockEdit(p);
   const isOut=p.qty===0,isLow=p.qty>0&&p.qty<=p.min;
   const cls=isOut?'out':(isLow?'low':'');
   const pill=isOut?'<span class="pill out">Sem estoque</span>':(isLow?'<span class="pill low">Acabando</span>':'');
@@ -509,7 +553,20 @@ function cardStock(p){
       <span class="qnum">${p.qty}</span>
       <button class="qbtn plus" data-act="plus" data-id="${p.id}">+</button>
     </div>
+    <button class="edit" data-act="editS" data-id="${p.id}" title="Editar">✎</button>
     <button class="del" data-act="delS" data-id="${p.id}">✕</button></div>`;
+}
+function cardStockEdit(p){
+  const opts=allCats().map(c=>`<option value="${esc(c.name)}" ${c.name===(p.cat||'Outros')?'selected':''}>${c.ic} ${esc(c.name)}</option>`).join('');
+  return `<div class="card editing">
+    <div class="editform">
+      <input class="edit-name" type="text" value="${esc(p.name)}" maxlength="40" data-edit-name="${p.id}">
+      <select class="edit-cat" data-edit-cat="${p.id}">${opts}</select>
+      <div class="editbtns">
+        <button class="ebtn save" data-act="saveEdit" data-id="${p.id}">Salvar</button>
+        <button class="ebtn cancel" data-act="cancelEdit" data-id="${p.id}">Cancelar</button>
+      </div>
+    </div></div>`;
 }
 function renderList(){
   const el=$('shopList');
@@ -524,8 +581,11 @@ function renderList(){
     const est=stockQtyOf(i.name);
     const last=lastPaidOf(i.name);
     const estTxt=est!=null?`${est} em estoque`:'novo produto';
-    const lastTag=last!=null?`<span class="lastpaid">último: ${BRL(last)}</span>`:'';
-    const priceVal=i.price!=null&&i.price>0?String(i.price).replace('.',','):'';
+    const lastTag=last!=null?`<span class="lastpaid">último: ${BRL(last)}/un</span>`:'';
+    const unit=i.price||0;
+    const priceVal=unit>0?String(unit).replace('.',','):'';
+    const sub=unit*buy;
+    const subTag=unit>0?`<span class="subtotal">= ${BRL(sub)}</span>`:'';
     return `
     <div class="card listcard checkitem ${i.done?'done':''}">
       <div class="toprow2">
@@ -543,24 +603,44 @@ function renderList(){
       </div>
       <div class="price-row">
         <span class="lbl">R$</span>
-        <input class="price-in" type="text" inputmode="decimal" placeholder="valor total pago"
+        <input class="price-in" type="text" inputmode="decimal" placeholder="preço por unidade"
           value="${priceVal}" data-price-id="${i.id}">
+        <span class="lbl">/un</span>
+        ${subTag}
       </div>
     </div>`;
   }).join('');
-  // ligar inputs de preço
+  // ligar inputs de preço (unitário)
   el.querySelectorAll('[data-price-id]').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const it=state.list.find(x=>x.id===inp.dataset.priceId);
+      if(!it)return;
+      const u=parsePrice(inp.value), q=it.buyQty||1;
+      const sp=inp.parentElement.querySelector('.subtotal');
+      if(u>0){
+        if(sp)sp.textContent='= '+BRL(u*q);
+        else{const s=document.createElement('span');s.className='subtotal';s.textContent='= '+BRL(u*q);inp.parentElement.appendChild(s);}
+      }else if(sp)sp.remove();
+    });
     inp.addEventListener('change',()=>setPrice(inp.dataset.priceId,inp.value));
   });
   // botão finalizar: só aparece se houver itens marcados
   const comprados=state.list.filter(i=>i.done);
   if(comprados.length>0){
-    const tot=comprados.reduce((s,i)=>s+(i.price||0),0);
+    const tot=comprados.reduce((s,i)=>s+(i.price||0)*(i.buyQty||1),0);
     fin.style.display='block';
     fin.innerHTML=`✓ Finalizar compras de hoje<br><span class="sum">${comprados.length} ${comprados.length>1?'itens':'item'} • ${BRL(tot)}</span>`;
   }else fin.style.display='none';
 }
 
+// normaliza item do histórico: formato novo {qty,unit,total} ou antigo {qty,price=total}
+function itemUT(it){
+  const qty=it.qty||1;
+  if(it.unit!=null){ return {qty, unit:it.unit, total:it.total!=null?it.total:it.unit*qty}; }
+  // formato antigo: price era o TOTAL do item
+  const total=it.price||0;
+  return {qty, unit:qty?total/qty:total, total};
+}
 function renderHistory(){
   const el=$('histList');
   const tot=$('histTotal');
@@ -593,7 +673,10 @@ function renderHistory(){
       const d=new Date(h.date);
       const ds=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})+
         ' • '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-      const its=h.items.map(it=>`<div class="it"><span>${esc(it.name)} ×${it.qty}</span><span>${BRL(it.price||0)}</span></div>`).join('');
+      const its=h.items.map(it=>{
+        const u=itemUT(it);
+        return `<div class="it"><span>${esc(it.name)} ×${u.qty} · ${BRL(u.unit)}/un</span><span>${BRL(u.total)}</span></div>`;
+      }).join('');
       return `<div class="histcard">
         <div class="hh"><span class="date">${ds}</span><span class="tot">${BRL(h.total||0)}</span></div>
         <div class="items">${its}</div>
@@ -662,16 +745,20 @@ function renderDash(){
   }).join('');
   chartEl.innerHTML=`<h3>Evolução dos gastos</h3><div class="chart">${bars}</div>`;
 
-  // ranking de produtos por gasto acumulado
+  // ranking de produtos: total gasto acumulado + preço unitário médio
   const prod={};
   state.history.forEach(h=>h.items.forEach(it=>{
-    prod[it.name]=(prod[it.name]||0)+(it.price||0);
+    const u=itemUT(it);
+    if(!prod[it.name])prod[it.name]={total:0,qty:0};
+    prod[it.name].total+=u.total;
+    prod[it.name].qty+=u.qty;
   }));
-  const ranking=Object.entries(prod).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const ranking=Object.entries(prod).sort((a,b)=>b[1].total-a[1].total).slice(0,5);
   if(ranking.length){
-    topEl.innerHTML=`<h3>Onde você mais gasta</h3>`+ranking.map((r,i)=>
-      `<div class="toprow3"><span class="rank">${i+1}</span><span class="pname">${esc(r[0])}</span><span class="pval">${BRL(r[1])}</span></div>`
-    ).join('');
+    topEl.innerHTML=`<h3>Onde você mais gasta</h3>`+ranking.map(([name,d],i)=>{
+      const medio=d.qty?d.total/d.qty:0;
+      return `<div class="toprow3"><span class="rank">${i+1}</span><span class="pname">${esc(name)}<span class="pavg">${BRL(medio)}/un médio</span></span><span class="pval">${BRL(d.total)}</span></div>`;
+    }).join('');
   }else topEl.innerHTML='';
 }
 
@@ -687,6 +774,13 @@ document.addEventListener('click',e=>{
   else if(act==='buyPlus')changeBuyQty(id,1);
   else if(act==='toggle')toggleDone(id);
   else if(act==='delH')delHistory(id);
+  else if(act==='editS'){editingId=id;render();}
+  else if(act==='cancelEdit'){editingId=null;render();}
+  else if(act==='saveEdit'){
+    const nm=document.querySelector(`[data-edit-name="${id}"]`);
+    const ct=document.querySelector(`[data-edit-cat="${id}"]`);
+    editStock(id, nm?nm.value:'', ct?ct.value:'');
+  }
 });
 
 $('addBtn').onclick=()=>{addStock($('addName').value,$('addCat').value);$('addName').value='';$('addName').focus();};
