@@ -85,6 +85,61 @@
   .empty .em{font-size:42px;margin-bottom:8px}.empty p{margin:4px 0;font-size:14px}
   .clearbtn{width:100%;border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:12px;padding:12px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px}
 
+  .price-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+  .price-row .lbl{font-size:12px;color:var(--muted)}
+  .price-in{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:6px 10px;font-family:inherit;font-size:14px;color:var(--ink);outline:none;width:110px}
+  .price-in:focus{border-color:var(--accent)}
+  .lastpaid{font-size:11px;color:var(--accent);background:#f3e3d8;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+  .listcard{flex-wrap:wrap}
+  .listcard .toprow2{display:flex;align-items:center;gap:12px;width:100%}
+
+  .finishbtn{width:100%;border:none;background:var(--green);color:#fff;border-radius:14px;padding:16px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;box-shadow:var(--shadow);transition:.15s}
+  .finishbtn:active{transform:scale(.98)}
+  .finishbtn .sum{font-weight:500;opacity:.9;font-size:14px}
+
+  .histtotal{background:var(--ink);color:var(--paper);border-radius:16px;padding:18px 20px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .histtotal .big{font-family:'Fraunces',serif;font-size:32px;font-weight:700;line-height:1}
+  .histtotal .lbl{font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+  .histcard{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .histcard .hh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .histcard .date{font-weight:600;font-size:15px}
+  .histcard .tot{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--green)}
+  .histcard .items{font-size:13px;color:var(--muted);line-height:1.7}
+  .histcard .items .it{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:3px 0}
+  .histcard .items .it:last-child{border:none}
+  .histcard .delh{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:12px;text-decoration:underline;font-family:inherit;margin-top:8px;opacity:.7}
+  .monthhead{display:flex;justify-content:space-between;align-items:baseline;margin:18px 4px 10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  .monthhead span:first-child{font-family:'Fraunces',serif;font-size:18px;font-weight:600}
+  .monthhead .msum{font-weight:700;color:var(--accent);font-size:15px}
+  .monthhead:first-child{margin-top:0}
+
+  /* dashboard */
+  .dashcards{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  .dashcards .dc{flex:1;min-width:140px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+  .dashcards .dc .v{font-family:'Fraunces',serif;font-size:26px;font-weight:600;line-height:1}
+  .dashcards .dc .k{font-size:12px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
+  .dashcards .dc.accent .v{color:var(--accent)}
+  .dashcards .dc .trend{font-size:12px;font-weight:600;margin-top:6px}
+  .trend.up{color:var(--red)}.trend.down{color:var(--green)}.trend.flat{color:var(--muted)}
+
+  .chartbox{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px 18px 14px;box-shadow:var(--shadow);margin-bottom:20px}
+  .chartbox h3{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin:0 0 18px}
+  .chart{display:flex;align-items:flex-end;gap:10px;height:180px;overflow-x:auto;padding-bottom:4px}
+  .chart::-webkit-scrollbar{height:6px}.chart::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+  .bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;min-width:42px;height:100%}
+  .bar-val{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:5px;white-space:nowrap}
+  .bar{width:100%;max-width:46px;background:linear-gradient(180deg,var(--accent),#d98a5e);border-radius:8px 8px 0 0;transition:height .5s cubic-bezier(.2,.9,.3,1);min-height:3px}
+  .bar.cur{background:linear-gradient(180deg,var(--green),#5fa372)}
+  .bar-lbl{font-size:11px;color:var(--muted);margin-top:7px;white-space:nowrap;text-align:center}
+
+  .topbox{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px 18px;box-shadow:var(--shadow)}
+  .topbox h3{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin:0 0 14px}
+  .toprow3{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+  .toprow3:last-child{border:none}
+  .toprow3 .rank{width:24px;height:24px;border-radius:50%;background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);margin-right:10px;flex:none}
+  .toprow3 .pname{flex:1;font-weight:500}
+  .toprow3 .pval{font-weight:700;color:var(--accent)}
+
   #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--paper);padding:13px 20px;border-radius:14px;font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:50;transition:transform .35s cubic-bezier(.2,.9,.3,1.3);max-width:90%;display:flex;align-items:center;gap:9px}
   #toast.show{transform:translateX(-50%) translateY(0)}
   #toast .dot{width:9px;height:9px;border-radius:50%;background:var(--red);flex:none}
@@ -154,6 +209,8 @@
   <div class="tabs">
     <button class="tab active" data-tab="stock">🏠 Estoque</button>
     <button class="tab" data-tab="list">🛒 Compras <span class="badge" id="listBadge" style="display:none">0</span></button>
+    <button class="tab" data-tab="hist">🧾 Histórico</button>
+    <button class="tab" data-tab="dash">📊 Painel</button>
   </div>
 
   <section class="panel show" id="panelStock">
@@ -176,6 +233,18 @@
       <button id="addListBtn">+</button>
     </div>
     <div id="shopList"></div>
+    <button class="finishbtn" id="finishBtn" style="display:none">✓ Finalizar compras de hoje</button>
+  </section>
+
+  <section class="panel" id="panelHist">
+    <div class="histtotal" id="histTotal"></div>
+    <div id="histList"></div>
+  </section>
+
+  <section class="panel" id="panelDash">
+    <div class="dashcards" id="dashCards"></div>
+    <div class="chartbox" id="chartBox"></div>
+    <div class="topbox" id="topBox"></div>
   </section>
 </div>
 </div>
@@ -223,10 +292,12 @@ const DEFAULT_CATS = [
   {name:"Hortifruti", ic:"🥬"},
   {name:"Outros", ic:"📦"},
 ];
-let state={stock:[],list:[],cats:[]};
+let state={stock:[],list:[],cats:[],history:[]};
 let loaded=false, unsub=null, createMode=false;
 
 const $=id=>document.getElementById(id);
+const BRL=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const parsePrice=s=>{const v=parseFloat(String(s).replace(/\./g,'').replace(',','.'));return isNaN(v)?0:v;};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function catIcon(name){const c=allCats().find(x=>x.name===name);return c?c.ic:"📦";}
@@ -295,9 +366,9 @@ function startSync(){
   unsub=onSnapshot(docRef,snap=>{
     if(snap.exists()){
       const d=snap.data();
-      state={stock:d.stock||[],list:d.list||[],cats:d.cats||[]};
+      state={stock:d.stock||[],list:d.list||[],cats:d.cats||[],history:d.history||[]};
     }else{
-      state={stock:[],list:[],cats:[]};
+      state={stock:[],list:[],cats:[],history:[]};
     }
     loaded=true;render();
   },err=>{toast('Erro de conexão: '+err.code,true);});
@@ -348,6 +419,43 @@ function changeBuyQty(id,d){
   const i=state.list.find(x=>x.id===id);if(!i)return;
   i.buyQty=Math.max(1,(i.buyQty||1)+d);save();render();
 }
+function setPrice(id,val){
+  const i=state.list.find(x=>x.id===id);if(!i)return;
+  i.price=parsePrice(val);save();
+}
+function stockQtyOf(name){
+  const p=state.stock.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  return p?p.qty:null;
+}
+function lastPaidOf(name){
+  const p=state.stock.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  return p&&p.lastPaid!=null?p.lastPaid:null;
+}
+function finalizarCompras(){
+  const comprados=state.list.filter(i=>i.done);
+  if(comprados.length===0){toast('Marque os itens comprados primeiro',true);return;}
+  const total=comprados.reduce((s,i)=>s+(i.price||0),0);
+  const entryItems=[];
+  comprados.forEach(i=>{
+    const qtd=i.buyQty||1, preco=i.price||0;
+    let p=state.stock.find(x=>x.name.toLowerCase()===i.name.toLowerCase());
+    if(p){ p.qty+=qtd; }
+    else { p={id:uid(),name:i.name,qty:qtd,min:1,cat:"Outros"}; state.stock.unshift(p); }
+    p.lastPaid=preco;
+    entryItems.push({name:i.name,qty:qtd,price:preco});
+  });
+  state.history.unshift({
+    id:uid(), date:Date.now(), total, items:entryItems
+  });
+  // remove os comprados da lista (zera), mantém os não comprados
+  state.list=state.list.filter(i=>!i.done);
+  save();render();
+  toast('Compra finalizada • '+BRL(total)+' ✓');
+}
+function delHistory(id){
+  if(!confirm('Remover esta compra do histórico? O estoque não muda.'))return;
+  state.history=state.history.filter(h=>h.id!==id);save();render();
+}
 
 /* ---------- RENDER ---------- */
 function render(){
@@ -358,7 +466,7 @@ function render(){
   $('stList').textContent=pending;
   const b=$('listBadge');
   if(pending>0){b.style.display='';b.textContent=pending;}else b.style.display='none';
-  renderCatSelect();renderFilters();renderStock();renderList();
+  renderCatSelect();renderFilters();renderStock();renderList();renderHistory();renderDash();
 }
 function renderCatSelect(){
   const sel=$('addCat'),cur=sel.value;
@@ -405,24 +513,166 @@ function cardStock(p){
 }
 function renderList(){
   const el=$('shopList');
-  if(state.list.length===0){el.innerHTML='<div class="empty"><div class="em">🛒</div><p><b>Lista vazia</b></p><p>Itens entram aqui sozinhos quando o estoque zera.</p></div>';return;}
+  const fin=$('finishBtn');
+  if(state.list.length===0){
+    el.innerHTML='<div class="empty"><div class="em">🛒</div><p><b>Lista vazia</b></p><p>Itens entram aqui sozinhos quando o estoque zera.</p></div>';
+    fin.style.display='none';return;
+  }
   const sorted=[...state.list].sort((a,b)=>a.done-b.done);
   el.innerHTML=sorted.map(i=>{
     const buy=i.buyQty||1;
+    const est=stockQtyOf(i.name);
+    const last=lastPaidOf(i.name);
+    const estTxt=est!=null?`${est} em estoque`:'novo produto';
+    const lastTag=last!=null?`<span class="lastpaid">último: ${BRL(last)}</span>`:'';
+    const priceVal=i.price!=null&&i.price>0?String(i.price).replace('.',','):'';
     return `
-    <div class="card checkitem ${i.done?'done':''}">
-      <div class="check" data-act="toggle" data-id="${i.id}">${i.done?'✓':''}</div>
-      <div class="info" data-act="toggle" data-id="${i.id}">
-        <div class="name">${esc(i.name)} ${i.auto?'<span class="auto-tag">acabou</span>':''}</div>
-        <div class="meta">comprar ${buy}</div>
+    <div class="card listcard checkitem ${i.done?'done':''}">
+      <div class="toprow2">
+        <div class="check" data-act="toggle" data-id="${i.id}">${i.done?'✓':''}</div>
+        <div class="info" data-act="toggle" data-id="${i.id}">
+          <div class="name">${esc(i.name)} ${i.auto?'<span class="auto-tag">acabou</span>':''} ${lastTag}</div>
+          <div class="meta">comprar ${buy} • ${estTxt}</div>
+        </div>
+        <div class="qty">
+          <button class="qbtn minus" data-act="buyMinus" data-id="${i.id}">−</button>
+          <span class="qnum">${buy}</span>
+          <button class="qbtn plus" data-act="buyPlus" data-id="${i.id}">+</button>
+        </div>
+        <button class="del" data-act="delL" data-id="${i.id}">✕</button>
       </div>
-      <div class="qty">
-        <button class="qbtn minus" data-act="buyMinus" data-id="${i.id}">−</button>
-        <span class="qnum">${buy}</span>
-        <button class="qbtn plus" data-act="buyPlus" data-id="${i.id}">+</button>
+      <div class="price-row">
+        <span class="lbl">R$</span>
+        <input class="price-in" type="text" inputmode="decimal" placeholder="valor total pago"
+          value="${priceVal}" data-price-id="${i.id}">
       </div>
-      <button class="del" data-act="delL" data-id="${i.id}">✕</button></div>`;
+    </div>`;
   }).join('');
+  // ligar inputs de preço
+  el.querySelectorAll('[data-price-id]').forEach(inp=>{
+    inp.addEventListener('change',()=>setPrice(inp.dataset.priceId,inp.value));
+  });
+  // botão finalizar: só aparece se houver itens marcados
+  const comprados=state.list.filter(i=>i.done);
+  if(comprados.length>0){
+    const tot=comprados.reduce((s,i)=>s+(i.price||0),0);
+    fin.style.display='block';
+    fin.innerHTML=`✓ Finalizar compras de hoje<br><span class="sum">${comprados.length} ${comprados.length>1?'itens':'item'} • ${BRL(tot)}</span>`;
+  }else fin.style.display='none';
+}
+
+function renderHistory(){
+  const el=$('histList');
+  const tot=$('histTotal');
+  if(!state.history||state.history.length===0){
+    tot.innerHTML='';
+    el.innerHTML='<div class="empty"><div class="em">🧾</div><p><b>Sem compras ainda</b></p><p>Finalize uma compra na aba 🛒 para registrar aqui.</p></div>';
+    return;
+  }
+  const geral=state.history.reduce((s,h)=>s+(h.total||0),0);
+  tot.innerHTML=`<div class="big">${BRL(geral)}</div><div class="lbl">Total gasto • ${state.history.length} ${state.history.length>1?'compras':'compra'}</div>`;
+
+  // agrupa por mês/ano preservando a ordem (history já vem do mais recente)
+  const months=[];
+  const idx={};
+  state.history.forEach(h=>{
+    const d=new Date(h.date);
+    const key=d.getFullYear()+'-'+d.getMonth();
+    if(idx[key]==null){
+      idx[key]=months.length;
+      const label=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+      months.push({label:label.charAt(0).toUpperCase()+label.slice(1),total:0,buys:[]});
+    }
+    const m=months[idx[key]];
+    m.total+=h.total||0;
+    m.buys.push(h);
+  });
+
+  el.innerHTML=months.map(m=>{
+    const cards=m.buys.map(h=>{
+      const d=new Date(h.date);
+      const ds=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})+
+        ' • '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const its=h.items.map(it=>`<div class="it"><span>${esc(it.name)} ×${it.qty}</span><span>${BRL(it.price||0)}</span></div>`).join('');
+      return `<div class="histcard">
+        <div class="hh"><span class="date">${ds}</span><span class="tot">${BRL(h.total||0)}</span></div>
+        <div class="items">${its}</div>
+        <button class="delh" data-act="delH" data-id="${h.id}">remover do histórico</button>
+      </div>`;
+    }).join('');
+    return `<div class="monthhead"><span>${esc(m.label)}</span><span class="msum">${BRL(m.total)}</span></div>${cards}`;
+  }).join('');
+}
+
+function monthlyTotals(){
+  // retorna array cronológico (antigo -> recente) de {label, key, total}
+  const map={};const order=[];
+  state.history.forEach(h=>{
+    const d=new Date(h.date);
+    const key=d.getFullYear()+'-'+String(d.getMonth()).padStart(2,'0');
+    if(map[key]==null){
+      map[key]={key,total:0,
+        label:d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+'/'+String(d.getFullYear()).slice(2)};
+      order.push(key);
+    }
+    map[key].total+=h.total||0;
+  });
+  order.sort();
+  return order.map(k=>map[k]);
+}
+
+function renderDash(){
+  const cardsEl=$('dashCards'), chartEl=$('chartBox'), topEl=$('topBox');
+  if(!state.history||state.history.length===0){
+    cardsEl.innerHTML='';topEl.innerHTML='';
+    chartEl.innerHTML='<div class="empty"><div class="em">📊</div><p><b>Sem dados ainda</b></p><p>Finalize compras para ver a evolução dos gastos aqui.</p></div>';
+    return;
+  }
+  const months=monthlyTotals();
+  const geral=months.reduce((s,m)=>s+m.total,0);
+  const media=geral/months.length;
+  const atual=months[months.length-1];
+  const anterior=months.length>1?months[months.length-2]:null;
+
+  // tendência mês atual vs anterior
+  let trend='';
+  if(anterior&&anterior.total>0){
+    const diff=((atual.total-anterior.total)/anterior.total)*100;
+    const cls=diff>1?'up':(diff<-1?'down':'flat');
+    const arrow=diff>1?'▲':(diff<-1?'▼':'■');
+    trend=`<div class="trend ${cls}">${arrow} ${Math.abs(diff).toFixed(0)}% vs mês anterior</div>`;
+  }
+
+  cardsEl.innerHTML=`
+    <div class="dc accent"><div class="v">${BRL(geral)}</div><div class="k">Total gasto</div></div>
+    <div class="dc"><div class="v">${BRL(media)}</div><div class="k">Média / mês</div></div>
+    <div class="dc"><div class="v">${BRL(atual.total)}</div><div class="k">Este mês</div>${trend}</div>`;
+
+  // gráfico: últimos 12 meses
+  const last=months.slice(-12);
+  const max=Math.max(...last.map(m=>m.total),1);
+  const bars=last.map((m,idx)=>{
+    const h=Math.round((m.total/max)*140)+3;
+    const isCur=idx===last.length-1;
+    return `<div class="bar-col">
+      <div class="bar-val">${m.total>=1000?(m.total/1000).toFixed(1)+'k':Math.round(m.total)}</div>
+      <div class="bar ${isCur?'cur':''}" style="height:${h}px" title="${BRL(m.total)}"></div>
+      <div class="bar-lbl">${m.label}</div>
+    </div>`;
+  }).join('');
+  chartEl.innerHTML=`<h3>Evolução dos gastos</h3><div class="chart">${bars}</div>`;
+
+  // ranking de produtos por gasto acumulado
+  const prod={};
+  state.history.forEach(h=>h.items.forEach(it=>{
+    prod[it.name]=(prod[it.name]||0)+(it.price||0);
+  }));
+  const ranking=Object.entries(prod).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(ranking.length){
+    topEl.innerHTML=`<h3>Onde você mais gasta</h3>`+ranking.map((r,i)=>
+      `<div class="toprow3"><span class="rank">${i+1}</span><span class="pname">${esc(r[0])}</span><span class="pval">${BRL(r[1])}</span></div>`
+    ).join('');
+  }else topEl.innerHTML='';
 }
 
 /* ---------- delegação de eventos ---------- */
@@ -436,6 +686,7 @@ document.addEventListener('click',e=>{
   else if(act==='buyMinus')changeBuyQty(id,-1);
   else if(act==='buyPlus')changeBuyQty(id,1);
   else if(act==='toggle')toggleDone(id);
+  else if(act==='delH')delHistory(id);
 });
 
 $('addBtn').onclick=()=>{addStock($('addName').value,$('addCat').value);$('addName').value='';$('addName').focus();};
@@ -444,11 +695,13 @@ $('newCatBtn').onclick=()=>{addCategory($('newCat').value);$('newCat').value='';
 $('newCat').addEventListener('keydown',e=>{if(e.key==='Enter'){addCategory(e.target.value);e.target.value='';}});
 $('addListBtn').onclick=()=>{addListManual($('addListName').value);$('addListName').value='';$('addListName').focus();};
 $('addListName').addEventListener('keydown',e=>{if(e.key==='Enter'){addListManual(e.target.value);e.target.value='';}});
+$('finishBtn').onclick=finalizarCompras;
+const PANELS={stock:'panelStock',list:'panelList',hist:'panelHist',dash:'panelDash'};
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('show'));
   t.classList.add('active');
-  $(t.dataset.tab==='stock'?'panelStock':'panelList').classList.add('show');
+  $(PANELS[t.dataset.tab]).classList.add('show');
 });
 </script>
 </body>
