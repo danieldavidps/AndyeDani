@@ -176,7 +176,6 @@
       <button id="addListBtn">+</button>
     </div>
     <div id="shopList"></div>
-    <button class="clearbtn" id="clearDone" style="display:none">Remover itens comprados ✓</button>
   </section>
 </div>
 </div>
@@ -329,7 +328,7 @@ function changeQty(id,d){
 function delStock(id){state.stock=state.stock.filter(x=>x.id!==id);save();render();}
 function autoAddToList(name){
   if(!state.list.find(i=>i.name.toLowerCase()===name.toLowerCase()))
-    state.list.unshift({id:uid(),name,done:false,auto:true});
+    state.list.unshift({id:uid(),name,done:false,auto:true,buyQty:1});
 }
 function addCategory(name){
   name=name.trim();if(!name)return;
@@ -341,11 +340,14 @@ function addCategory(name){
 function addListManual(name){
   name=name.trim();if(!name)return;
   if(state.list.find(i=>i.name.toLowerCase()===name.toLowerCase())){toast('Já está na lista',true);return;}
-  state.list.unshift({id:uid(),name,done:false,auto:false});save();render();
+  state.list.unshift({id:uid(),name,done:false,auto:false,buyQty:1});save();render();
 }
 function toggleDone(id){const i=state.list.find(x=>x.id===id);if(i){i.done=!i.done;save();render();}}
 function delList(id){state.list=state.list.filter(x=>x.id!==id);save();render();}
-function clearDone(){state.list=state.list.filter(i=>!i.done);save();render();}
+function changeBuyQty(id,d){
+  const i=state.list.find(x=>x.id===id);if(!i)return;
+  i.buyQty=Math.max(1,(i.buyQty||1)+d);save();render();
+}
 
 /* ---------- RENDER ---------- */
 function render(){
@@ -403,14 +405,24 @@ function cardStock(p){
 }
 function renderList(){
   const el=$('shopList');
-  $('clearDone').style.display=state.list.some(i=>i.done)?'block':'none';
   if(state.list.length===0){el.innerHTML='<div class="empty"><div class="em">🛒</div><p><b>Lista vazia</b></p><p>Itens entram aqui sozinhos quando o estoque zera.</p></div>';return;}
   const sorted=[...state.list].sort((a,b)=>a.done-b.done);
-  el.innerHTML=sorted.map(i=>`
-    <div class="card checkitem ${i.done?'done':''}" data-act="toggle" data-id="${i.id}">
-      <div class="check">${i.done?'✓':''}</div>
-      <div class="info"><div class="name">${esc(i.name)} ${i.auto?'<span class="auto-tag">auto</span>':''}</div></div>
-      <button class="del" data-act="delL" data-id="${i.id}">✕</button></div>`).join('');
+  el.innerHTML=sorted.map(i=>{
+    const buy=i.buyQty||1;
+    return `
+    <div class="card checkitem ${i.done?'done':''}">
+      <div class="check" data-act="toggle" data-id="${i.id}">${i.done?'✓':''}</div>
+      <div class="info" data-act="toggle" data-id="${i.id}">
+        <div class="name">${esc(i.name)} ${i.auto?'<span class="auto-tag">acabou</span>':''}</div>
+        <div class="meta">comprar ${buy}</div>
+      </div>
+      <div class="qty">
+        <button class="qbtn minus" data-act="buyMinus" data-id="${i.id}">−</button>
+        <span class="qnum">${buy}</span>
+        <button class="qbtn plus" data-act="buyPlus" data-id="${i.id}">+</button>
+      </div>
+      <button class="del" data-act="delL" data-id="${i.id}">✕</button></div>`;
+  }).join('');
 }
 
 /* ---------- delegação de eventos ---------- */
@@ -421,6 +433,8 @@ document.addEventListener('click',e=>{
   else if(act==='plus')changeQty(id,1);
   else if(act==='delS')delStock(id);
   else if(act==='delL'){e.stopPropagation();delList(id);}
+  else if(act==='buyMinus')changeBuyQty(id,-1);
+  else if(act==='buyPlus')changeBuyQty(id,1);
   else if(act==='toggle')toggleDone(id);
 });
 
@@ -430,7 +444,6 @@ $('newCatBtn').onclick=()=>{addCategory($('newCat').value);$('newCat').value='';
 $('newCat').addEventListener('keydown',e=>{if(e.key==='Enter'){addCategory(e.target.value);e.target.value='';}});
 $('addListBtn').onclick=()=>{addListManual($('addListName').value);$('addListName').value='';$('addListName').focus();};
 $('addListName').addEventListener('keydown',e=>{if(e.key==='Enter'){addListManual(e.target.value);e.target.value='';}});
-$('clearDone').onclick=clearDone;
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('show'));
